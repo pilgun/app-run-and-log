@@ -1,6 +1,12 @@
 import config
 import os
 
+class CsvRegister(object):
+    csv_path = ""
+    def __init__(self, csv_path):
+        self.csv_path = csv_path
+
+
 def get_apps_to_process(app_repository_path, done_list_file):
     all_apps_list = os.listdir(app_repository_path)
     row_apps_list = [x for x in all_apps_list if is_row_app(x)]
@@ -15,9 +21,9 @@ def get_apps_to_process(app_repository_path, done_list_file):
     return row_apps_list, counter, fail_counter
 
 
-def is_row_app(path):
+def is_raw_app(path):
     basename = os.path.basename(path)
-    return not basename.endswith("_instrumented.apk")
+    return not basename.endswith("_instrumented.apk") and basename.endswith(".apk")
 
 
 def get_done_project_names(done_list_file):
