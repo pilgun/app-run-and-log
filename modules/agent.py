@@ -1,3 +1,4 @@
+import glob
 import os
 import subprocess
 from bbox.AndroidManifest import AndroidManifest
@@ -16,8 +17,15 @@ def get_android_manifest_path(sources_path):
     if not os.path.exists(android_manifest_path):
         android_manifest_path = os.path.join(sources_path, "src", "main", "AndroidManifest.xml")
         if not os.path.exists(android_manifest_path):
-            #todo: search for manifest
-            raise Exception("Manifest not found")
+            android_manifest_path = search_for_manifest(sources_path)
+            if not os.path.exists(android_manifest_path):
+                raise Exception("Manifest not found")
+    return android_manifest_path
+
+
+def search_for_manifest(sources_path):
+    generator = glob.iglob(f'{sources_path}/**/AndroidManifest.xml', recursive=True)
+    android_manifest_path = next(generator)
     return android_manifest_path
 
 
