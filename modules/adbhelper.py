@@ -28,7 +28,7 @@ Out: %s\nError: %s" % (out, err))
 
     return res
 
-def start_activity_explicitly(self, package_name, activity_name):
+def start_activity_explicitly(package_name, activity_name):
     #adb shell am start -n com.package.name/com.package.name.ActivityName 
     logger.debug("Starting activity [%s] of the package [%s]..." % (package_name, activity_name))
 
