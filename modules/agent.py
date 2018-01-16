@@ -1,11 +1,14 @@
 import os
+import subprocess
 from bbox.AndroidManifest import AndroidManifest
+
 
 def run_main_activity(sources_path):
     manifest_path = get_android_manifest_path(sources_path)
     manifest = AndroidManifest(manifest_path)
-    main_activity = manifest.getMainActivity()
-       
+    main_activity_name = manifest.getMainActivity()
+    subprocess.run(f'adb shell am start -n {manifest.packageName}/{main_activity_name}')
+
 
 def get_android_manifest_path(sources_path):
     android_manifest_path = os.path.join(sources_path, "app", "src", "main", "AndroidManifest.xml")
