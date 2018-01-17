@@ -1,24 +1,19 @@
-import config
-import os
+import logging
 
-class CsvRegister(object):
-    csv_path = ""
-    def __init__(self, csv_path):
-        self.csv_path = csv_path
+import os
 
 
 def get_apps_to_process(app_repository_path, done_list_file):
     all_apps_list = os.listdir(app_repository_path)
-    row_apps_list = [x for x in all_apps_list if is_row_app(x)]
-    apps_to_process = set(row_apps_list)
-    done_project_names = get_done_project_names()
+    raw_apps_list = [x for x in all_apps_list if is_raw_app(x)]
+    apps_to_process = set(raw_apps_list)
+    done_project_names = get_done_project_names(done_list_file)
     logging.info('==========done_list_file======================================================================================================================================')
     logging.info(f'DONE LIST SIZE: {len(done_project_names)}')
     logging.debug(f'DONE LIST CONTENT: {done_project_names}')
     apps_to_process = apps_to_process - set(done_project_names)
-    counter = len(done_project_names)
-    fail_counter = get_fail_counter(done_list_file)
-    return row_apps_list, counter, fail_counter
+    logging.debug(f'Apps to process: {apps_to_process}')
+    return apps_to_process
 
 
 def is_raw_app(path):

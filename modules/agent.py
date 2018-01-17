@@ -1,36 +1,24 @@
-import glob
 import os
-import subprocess
-from bbox.AndroidManifest import AndroidManifest
+import sys
+
 from modules import adbhelper
+from modules.entities import Csv
+
+csv = Csv()
 
 
-def run_main_activity(sources_path):
-    manifest_path = get_android_manifest_path(sources_path)
-    manifest = AndroidManifest(manifest_path)
-    main_activity_name = manifest.getMainActivity()
-    adbhelper.start_activity_explicitly(manifest.packageName, main_activity_name)
+def run_main_activity(apk):
+    main_activity_name = apk.manifest.getMainActivity()
+    adbhelper.start_activity_explicitly(apk.manifest.packageName, main_activity_name)
 
 
-def get_android_manifest_path(sources_path):
-    android_manifest_path = os.path.join(sources_path, "app", "src", "main", "AndroidManifest.xml")
-    if not os.path.exists(android_manifest_path):
-        android_manifest_path = os.path.join(sources_path, "src", "main", "AndroidManifest.xml")
-        if not os.path.exists(android_manifest_path):
-            android_manifest_path = search_for_manifest(sources_path)
-            if not os.path.exists(android_manifest_path):
-                raise Exception("Manifest not found")
-    return android_manifest_path
+def register_crash(app, status):
+    csv.write_row(app, status)
 
 
-def search_for_manifest(sources_path):
-    generator = glob.iglob(f'{sources_path}/**/AndroidManifest.xml', recursive=True)
-    android_manifest_path = next(generator)
-    return android_manifest_path
+def close_crash_report():
+    csv.close()
 
-
-def register_crash(app):
-    print("todo: save in csv")
 
 def wait_key():
     ''' Wait for a key press on the console and return it. '''
@@ -51,4 +39,4 @@ def wait_key():
             pass
         finally:
             termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
-    return result
+    return result.decode('utf-8')
