@@ -104,3 +104,5 @@ ENV/
 .idea/
 
 modules/config.py
+crashes.csv
+done_list.txt
