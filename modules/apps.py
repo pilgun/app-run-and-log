@@ -2,6 +2,8 @@ import logging
 
 import os
 
+from modules import config
+
 
 def get_apps_to_process(app_repository_path, done_list_file):
     all_apps_list = os.listdir(app_repository_path)
@@ -11,7 +13,9 @@ def get_apps_to_process(app_repository_path, done_list_file):
     logging.info('==========done_list_file======================================================================================================================================')
     logging.info(f'DONE LIST SIZE: {len(done_project_names)}')
     logging.debug(f'DONE LIST CONTENT: {done_project_names}')
-    apps_to_process = apps_to_process - set(done_project_names)
+    if not config.IGNORE_DONE_LIST:
+        logging.info("IGNORING DONE LIST")
+        apps_to_process = apps_to_process - set(done_project_names)
     logging.debug(f'Apps to process: {apps_to_process}')
     return apps_to_process
 
