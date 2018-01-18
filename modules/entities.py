@@ -16,6 +16,7 @@ class Csv(object):
 
     def write_row(self, app, status):
         self.writer.writerow([app, status])
+        self.csvfile.flush()
 
     def close(self):
         self.csvfile.close()
@@ -27,7 +28,6 @@ class Apk:
         self.name = name
         sources_path = os.path.join(config.SOURCES_REPOSITORY, name.split('.apk')[0])
         manifest_path = self.get_android_manifest_path(sources_path)
-        logging.debug(manifest_path)
         self.manifest = AndroidManifest(manifest_path)
         self.package = self.manifest.packageName
 

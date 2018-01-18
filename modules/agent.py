@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -9,6 +10,7 @@ csv = Csv()
 
 def run_main_activity(apk):
     main_activity_name = apk.manifest.getMainActivity()
+    logging.debug(f'Manifest path: {apk.manifest.pathAndroidManifest}')
     adbhelper.start_activity_explicitly(apk.manifest.packageName, main_activity_name)
 
 
