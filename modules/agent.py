@@ -2,19 +2,32 @@ import logging
 import os
 import sys
 
-from modules import adbhelper
-from modules.entities import Csv
+from modules import shellhelper
+from modules.entities import Csv, csv
+from modules.exceptions import AbsentActivityException, UserExitException
 
-csv = Csv()
 
 
 def run_main_activity(apk):
     main_activity_name = apk.manifest.getMainActivity()
+    if main_activity_name is None:
+        raise AbsentActivityException
     logging.debug(f'Manifest path: {apk.manifest.pathAndroidManifest}')
-    adbhelper.start_activity_explicitly(apk.manifest.packageName, main_activity_name)
+    shellhelper.start_activity_explicitly(apk.manifest.packageName, main_activity_name)
 
 
-def register_crash(app, status):
+def read_status_from_experimenter():
+    print("Press: c - crashed, s - successed, e - exit")
+    key = wait_key()
+    while key != 's' and key != 'c' and key != 'e':
+        print("Press: c - crashed, s - successed, e - exit")
+        key = wait_key()
+    if key == 'e':
+        raise UserExitException()
+    return key
+
+
+def report_status(app, status):
     csv.write_row(app, status)
 
 

@@ -2,20 +2,40 @@ import logging
 import subprocess
 
 from modules import config
+from modules.exceptions import AbsentPackageException, ErrorInstallingException, ErrorUninstallingException, NotEnoughSpaceException
 
 
 def install(new_apk_path):
     cmd = '"%s" install -r "%s"' % (config.ADB_PATH, new_apk_path)
-    out = request_pipe(cmd)
-
-    print(out)
+    try:
+        out = request_pipe(cmd)
+    except Exception as e:
+        if 'not enough space' in str(e):
+            raise NotEnoughSpaceException()
+        raise ErrorInstallingException
+    if 'Exception occurred while dumping' in out:
+        raise ErrorUninstallingException
 
 
 def uninstall(package):
     cmd = '"%s" uninstall "%s"' % (config.ADB_PATH, package)
-    out = request_pipe(cmd)
+    try:
+        request_pipe(cmd)
+    except Exception:
+        raise ErrorUninstallingException
 
-    print(out)
+
+def get_package(path):
+    cmd = f'aapt dump badging {path}'
+    try:
+        out = request_pipe(cmd)
+    except Exception:
+        raise AbsentPackageException()
+    first_line = out.split('\n')[0]
+    name_attribute = first_line.split(' ')[1]
+    package = name_attribute.split('=')[1]
+    package = package.replace("'", '')
+    return package
 
 
 def request_pipe(cmd):
@@ -26,7 +46,7 @@ def request_pipe(cmd):
     if not out:
         res = err
 
-    if pipe.returncode > 0:
+    if pipe.returncode > 0 :
         raise Exception("----------------------------------------------------\n\
 Out: %s\nError: %s" % (out, err))
 

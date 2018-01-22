@@ -1,13 +1,15 @@
 import logging.config
-import os
 
+import sys
 import yaml
 
-from modules import adbhelper
 from modules import agent
 from modules import apps
 from modules import config
+from modules.done_list_handler import list_handler, Status
 from modules.entities import Apk
+from modules.exceptions import AbsentActivityException, ManifestNotFoundException, UserExitException, ErrorInstallingException, ErrorUninstallingException, NotEnoughSpaceException
+from modules.tester import Tester
 
 
 def setup_logging():
@@ -16,35 +18,50 @@ def setup_logging():
 
 
 def main():
-    done_list_path = config.DONE_LIST
-
-    with open(done_list_path, 'a+') as done_list_file:
-        apps_to_process = apps.get_apps_to_process(config.APK_REPOSITORY, done_list_file)
-        logging.info("Start experiment")
-        app_count = len(apps_to_process)
-        counter = 0
-        for app_name in apps_to_process:
-            try:
-                counter += 1
-                apk = Apk(app_name)
-                logging.info(f"Testing {app_name} {counter } of {app_count}")
-                adbhelper.install(apk.path)
-                agent.run_main_activity(apk)
-                print("Press: c - crashed, s - successed")
-                key = agent.wait_key()
-                while key != 's' and key != 'c':
-                    print("Press: c - crashed, s - successed")
-                    key = agent.wait_key()
-                agent.register_crash(apk.package, key)
-                adbhelper.uninstall(apk.package)
-                done_list_file.write(f'{app_name}: SUCCESS\n')
-                done_list_file.flush()
-            except BaseException:
-                logging.exception(f'Exception for app {app_name}')
-                done_list_file.write(f'{app_name}: FAIL\n')
-                done_list_file.flush()
-
-        agent.close_crash_report()
+    logging.info("START EXPERIMENT")
+    apps_to_process, done_project_count, overall_apps = apps.get_apps_to_process(config.APK_REPOSITORY)
+    counter = done_project_count
+    fail_counter = list_handler.get_fail_counter()
+    for app_name in apps_to_process:
+        logging.info('================================================================================================================================================')
+        apk = Apk(app_name)
+        tester = Tester(apk)
+        try:
+            counter += 1
+            logging.info(f'{app_name}: {counter} OF {overall_apps}, FAIL TO RUN: {fail_counter}')
+            tester.test()
+        except ErrorInstallingException:
+            fail_counter += 1
+            logging.exception(f'Cannot install app {app_name}')
+            list_handler.write(app_name, Status.FAIL, reason='INSTALLATION ERROR')
+        except NotEnoughSpaceException:
+            logging.exception(f'Cannot install app {app_name} because there is not enough space. Stopping tool. Please, wipe data, then run tool again')
+            sys.exit()
+        except AbsentActivityException:
+            fail_counter += 1
+            logging.exception(f'Absent main activity for app {app_name}')
+            tester.uninstall()
+            list_handler.write(app_name, Status.FAIL, reason='ABSENT ACTIVITY')
+        except ManifestNotFoundException:
+            fail_counter += 1
+            logging.error(f'Manifest not found for app {app_name}')
+            list_handler.write(app_name, Status.FAIL, reason='MANIFEST NOT FOUND')
+            tester.uninstall()
+        except UserExitException:
+            logging.info(f'User has chosen to exit while testing {app_name}')
+            list_handler.write(app_name, Status.UNDEFINED, reason='USER_EXIT')
+            tester.uninstall()
+            sys.exit()
+        except ErrorUninstallingException:
+            logging.exception(f'Cannot uninstall {app_name}')
+            list_handler.write(app_name, Status.SUCCESS, comment='UNINSTALL ERROR')
+        except BaseException:
+            fail_counter += 1
+            logging.exception(f'Exception for app {app_name}')
+            tester.uninstall()
+            list_handler.write(app_name, Status.FAIL, reason='UNKNOWN')
+    agent.close_crash_report()
+    list_handler.close()
 
 
 if __name__ == "__main__":
