@@ -13,6 +13,7 @@ def run_main_activity(apk):
     if main_activity_name is None:
         raise AbsentActivityException
     logging.debug(f'Manifest path: {apk.manifest.pathAndroidManifest}')
+    shellhelper.clean_log()
     shellhelper.start_activity_explicitly(apk.manifest.packageName, main_activity_name)
 
 
@@ -29,6 +30,8 @@ def read_status_from_experimenter():
 
 def report_status(app, status):
     csv.write_row(app, status)
+    if status == 'c':
+        shellhelper.save_log(app)
 
 
 def close_crash_report():

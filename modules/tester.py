@@ -1,11 +1,15 @@
 from modules import shellhelper, agent
 from modules.decorators import log
 from modules.done_list_handler import list_handler, Status
+import os
+from modules import config
 
 
 class Tester:
     def __init__(self, apk):
         self.apk = apk
+        if not os.path.exists(config.LOGS_DIR):
+            os.makedirs(config.LOGS_DIR)
 
     @log('WRITE SUCCESS')
     def write_success(self):

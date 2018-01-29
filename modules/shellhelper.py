@@ -3,6 +3,7 @@ import subprocess
 
 from modules import config
 from modules.exceptions import AbsentPackageException, ErrorInstallingException, ErrorUninstallingException, NotEnoughSpaceException
+import os
 
 
 def install(new_apk_path):
@@ -59,4 +60,12 @@ def start_activity_explicitly(package_name, activity_name):
 
     run_string = package_name + '/' + activity_name
     cmd = "{0} shell am start -n {1}".format(config.ADB_PATH, run_string)
+    request_pipe(cmd)
+
+def clean_log():
+    cmd = "{0} logcat -c".format(config.ADB_PATH)
+    request_pipe(cmd)
+
+def save_log(app):
+    cmd = "{0} logcat *:E -d > {1}".format(config.ADB_PATH, os.path.join(config.LOGS_DIR, app + '.txt'))
     request_pipe(cmd)

@@ -106,3 +106,6 @@ ENV/
 modules/config.py
 crashes.csv
 done_list.txt
+logs/
+apktool_logs/
+jacoco_logs/

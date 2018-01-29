@@ -26,7 +26,7 @@ def get_apps_to_process(app_repository_path):
 
 def is_raw_app(path):
     basename = os.path.basename(path)
-    return not basename.endswith("_instrumented.apk") and basename.endswith(".apk")
+    return basename.endswith(".apk")
 
 
 

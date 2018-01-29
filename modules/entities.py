@@ -9,8 +9,8 @@ from modules.exceptions import ManifestNotFoundException
 
 class Csv(object):
 
-    def __init__(self, csv_path='crashes.csv'):
-        if os.path.exists('crashes.csv'):
+    def __init__(self, csv_path):
+        if os.path.exists(csv_path):
             self.csvfile = open(csv_path, 'a', newline='')
         else:
             self.csvfile = open(csv_path, 'w', newline='')
@@ -33,7 +33,7 @@ class Csv(object):
         crash_count = self.csvfile.read().count(',c')
         return crash_count
 
-csv = Csv()
+csv = Csv(config.CRASHES_CSV)
 
 
 class Apk:
