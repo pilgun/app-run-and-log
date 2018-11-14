@@ -109,3 +109,4 @@ done_list.txt
 logs/
 apktool_logs/
 jacoco_logs/
+acvtool_logs/

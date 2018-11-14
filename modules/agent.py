@@ -6,15 +6,13 @@ from modules import shellhelper
 from modules.entities import Csv, csv
 from modules.exceptions import AbsentActivityException, UserExitException
 
-
-
 def run_main_activity(apk):
-    main_activity_name = apk.manifest.getMainActivity()
+    main_activity_name = apk.activity
     if main_activity_name is None:
         raise AbsentActivityException
-    logging.debug(f'Manifest path: {apk.manifest.pathAndroidManifest}')
+    #logging.debug(f'Manifest path: {apk.manifest.pathAndroidManifest}')
     shellhelper.clean_log()
-    shellhelper.start_activity_explicitly(apk.manifest.packageName, main_activity_name)
+    shellhelper.start_activity_explicitly(apk.package, main_activity_name)
 
 
 def read_status_from_experimenter():
@@ -31,6 +29,7 @@ def read_status_from_experimenter():
 def report_status(app, status):
     csv.write_row(app, status)
     if status == 'c':
+        #pass
         shellhelper.save_log(app)
 
 

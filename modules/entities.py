@@ -1,6 +1,8 @@
 import csv
 import glob
 import os
+import re
+import subprocess
 
 from bbox.AndroidManifest import AndroidManifest
 from modules import config, shellhelper
@@ -42,14 +44,14 @@ class Apk:
         self.name = name
         self.package = shellhelper.get_package(self.path)
         self.manifest = None
+        self.activity = None
 
     def init_manifest(self):
-        sources_path = os.path.join(config.SOURCES_REPOSITORY, self.name.split('.apk')[0])
-        manifest_path = self.get_android_manifest_path(sources_path)
-        self.manifest = AndroidManifest(manifest_path)
+        self.activity = get_apk_properties(self.path).activity
 
     def get_android_manifest_path(self, sources_path):
         android_manifest_path = os.path.join(sources_path, "app", "src", "main", "AndroidManifest.xml")
+        # android_manifest_path = os.path.join(sources_path, self.name.split('.apk')[0]+'.xml')
         if not os.path.exists(android_manifest_path):
             android_manifest_path = os.path.join(sources_path, "src", "main", "AndroidManifest.xml")
             if not os.path.exists(android_manifest_path):
@@ -65,3 +67,33 @@ class Apk:
         generator = glob.iglob(f'{sources_path}/**/AndroidManifest.xml', recursive=True)
         android_manifest_path = next(generator)
         return android_manifest_path
+
+
+AAPT = "C:\\Users\\aleksandr.pilgun\\appdata\\local\\android\\sdk\\build-tools\\25.0.1\\aapt.exe"
+apk_info_pattern = re.compile("([^\>]*)package: name='(?P<package>.*?)'\
+([^\>]*)sdkVersion:'(?P<sdkversion>.*?)'(([^\>]*)\
+targetSdkVersion:'(?P<targetsdkversion>.*?)')?([^\>]*)\
+launchable-activity: name='(?P<activity>.*?)'([^\>]*)")
+
+def get_apk_properties(path):
+    info_cmd = "{} dump badging {}".format(AAPT, path)
+    out = subprocess.check_output(info_cmd, shell=True).decode('utf-8')
+    matched = re.match(apk_info_pattern, out)
+
+    package_name = matched.group('package')
+    package_sdkversion = matched.group('sdkversion')
+    package_targetsdkversion = matched.group('targetsdkversion')
+    package_activity = matched.group('activity')
+
+    return apkinfo(package_name, package_sdkversion, package_targetsdkversion, package_activity)
+
+class apkinfo(object):
+    """Properties of the apk file."""
+    def __init__(self, package=None, sdkversion=None, targetsdkverion=None, activity=None):
+        self.package = package
+        self.sdkversion = sdkversion
+        self.targetsdkversion = targetsdkverion
+        self.activity = activity
+
+    def __repr__(self):
+        return "{} {} {} {}".format(self.package, self.sdkversion, self.targetsdkversion, self.activity)

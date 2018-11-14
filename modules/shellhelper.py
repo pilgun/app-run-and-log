@@ -40,6 +40,7 @@ def get_package(path):
 
 
 def request_pipe(cmd):
+    print(cmd)
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out, err = pipe.communicate()
 
