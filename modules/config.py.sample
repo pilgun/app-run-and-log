@@ -1,5 +1,7 @@
 # Create config.py based on this file filling in values that make sense for your machine
-APK_REPOSITORY = r"D:\fdroid_results"
-SOURCES_REPOSITORY = r"D:\fdroid"
-DONE_LIST = r'done_list.txt'
-ADB_PATH = r"C:\Users\artsiom.kushniarou\AppData\Local\Android\sdk\platform-tools\adb.exe"
+APK_REPOSITORY = r"C:\play401_crashed_14"
+DONE_LIST = r'done_list_acvtool.txt'
+ADB_PATH = r"%userprofile%\AppData\Local\Android\sdk\platform-tools\adb.exe"
+IGNORE_DONE_LIST = False
+LOGS_DIR = "logs_acvtool"
+CRASHES_CSV = "crashes_acvtool.csv"
