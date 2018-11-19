@@ -69,11 +69,9 @@ class Apk:
         return android_manifest_path
 
 
-AAPT = "C:\\Users\\aleksandr.pilgun\\appdata\\local\\android\\sdk\\build-tools\\25.0.1\\aapt.exe"
+AAPT = "/Users/ap/Library/android/sdk/build-tools/28.0.2/aapt"
 apk_info_pattern = re.compile("([^\>]*)package: name='(?P<package>.*?)'\
-([^\>]*)sdkVersion:'(?P<sdkversion>.*?)'(([^\>]*)\
-targetSdkVersion:'(?P<targetsdkversion>.*?)')?([^\>]*)\
-launchable-activity: name='(?P<activity>.*?)'([^\>]*)")
+([^\>]*)launchable-activity: name='(?P<activity>.*?)'([^\>]*)")
 
 def get_apk_properties(path):
     info_cmd = "{} dump badging {}".format(AAPT, path)
@@ -81,8 +79,8 @@ def get_apk_properties(path):
     matched = re.match(apk_info_pattern, out)
 
     package_name = matched.group('package')
-    package_sdkversion = matched.group('sdkversion')
-    package_targetsdkversion = matched.group('targetsdkversion')
+    package_sdkversion = ""
+    package_targetsdkversion = ""
     package_activity = matched.group('activity')
 
     return apkinfo(package_name, package_sdkversion, package_targetsdkversion, package_activity)
