@@ -68,13 +68,11 @@ class Apk:
         android_manifest_path = next(generator)
         return android_manifest_path
 
-
-AAPT = "/Users/ap/Library/android/sdk/build-tools/28.0.2/aapt"
 apk_info_pattern = re.compile("([^\>]*)package: name='(?P<package>.*?)'\
 ([^\>]*)launchable-activity: name='(?P<activity>.*?)'([^\>]*)")
 
 def get_apk_properties(path):
-    info_cmd = "{} dump badging {}".format(AAPT, path)
+    info_cmd = "{} dump badging {}".format(config.AAPT_PATH, path)
     out = subprocess.check_output(info_cmd, shell=True).decode('utf-8')
     matched = re.match(apk_info_pattern, out)
 

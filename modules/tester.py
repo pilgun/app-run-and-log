@@ -1,9 +1,9 @@
+import os
+import time
+from modules import config
 from modules import shellhelper, agent
 from modules.decorators import log
 from modules.done_list_handler import list_handler, Status
-import os
-from modules import config
-
 
 class Tester:
     def __init__(self, apk):
@@ -23,6 +23,10 @@ class Tester:
     def report_status(self):
         status = agent.read_status_from_experimenter()
         agent.report_status(self.apk.package, status)
+    
+    @log('REPORT AUTO')
+    def report_status_automatically(self):
+        agent.report_error_automatically(self.apk.package)
 
     @log('RUN ACTIVITY')
     def run(self):
@@ -33,10 +37,14 @@ class Tester:
     def install(self):
         shellhelper.install(self.apk.path)
 
-    def test(self):
+    def test(self, manual=True):
         self.install()
         self.run()
-        self.report_status()
+        if manual:
+            self.report_status()
+        else:
+            time.sleep(config.WAIT_ACTIVITY)
+            self.report_status_automatically()
         self.uninstall()
         self.write_success()
 

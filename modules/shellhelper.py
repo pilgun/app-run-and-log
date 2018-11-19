@@ -68,5 +68,12 @@ def clean_log():
     request_pipe(cmd)
 
 def save_log(app):
-    cmd = "{0} logcat *:E -d > {1}".format(config.ADB_PATH, os.path.join(config.LOGS_DIR, app + '.txt'))
+    path = os.path.join(config.LOGS_DIR, app + '.txt')
+    cmd = "{0} logcat *:E -d > {1}".format(config.ADB_PATH, path)
     request_pipe(cmd)
+    return path
+
+def read_log(path):
+    with open(path, 'r') as file:
+        data = file.read()
+        return data

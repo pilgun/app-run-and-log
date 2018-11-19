@@ -29,7 +29,7 @@ def main():
         try:
             counter += 1
             logging.info(f'{app_name}: {counter} OF {overall_apps}, FAIL TO RUN: {fail_counter}')
-            tester.test()
+            tester.test(manual=False)
         except ErrorInstallingException:
             fail_counter += 1
             logging.exception(f'Cannot install app {app_name}')

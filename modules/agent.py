@@ -1,10 +1,13 @@
 import logging
 import os
 import sys
-
+import re
 from modules import shellhelper
 from modules.entities import Csv, csv
 from modules.exceptions import AbsentActivityException, UserExitException
+
+FATAL_LOG_LINE1 = "AndroidRuntime: FATAL EXCEPTION: main"
+FATAL_LOG_LINE2 = "AndroidRuntime: Process: {}"
 
 def run_main_activity(apk):
     main_activity_name = apk.activity
@@ -32,6 +35,22 @@ def report_status(app, status):
         #pass
         shellhelper.save_log(app)
 
+def report_error_automatically(app):
+    log_path = shellhelper.save_log(app)
+    text = shellhelper.read_log(log_path)
+    error = check_error(text, app)
+    if error:
+        csv.write_row(app, "fatal")
+        return True
+    csv.write_row(app, "ok")
+    return False
+
+def check_error(text, app):
+    '''Checks is there is Fatal exception message in the log file.'''
+    re_line1 = re.search(FATAL_LOG_LINE1, text)
+    pattern_line2 = re.escape(FATAL_LOG_LINE2.format(app))
+    re_line2 = re.search(pattern_line2, text)
+    return (re_line1 is not None) & (re_line2 is not None)
 
 def close_crash_report():
     csv.close()
