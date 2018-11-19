@@ -1,7 +1,9 @@
 # Create config.py based on this file filling in values that make sense for your machine
 APK_REPOSITORY = r"C:\play401_crashed_14"
 DONE_LIST = r'done_list_acvtool.txt'
-ADB_PATH = r"%userprofile%\AppData\Local\Android\sdk\platform-tools\adb.exe"
+ADB_PATH = r"$ANDROID_SDK\platform-tools\adb.exe"
+AAPT_PATH = r"$ANDROID_SDK\build-tools\27.0.0\aapt.exe"
 IGNORE_DONE_LIST = False
 LOGS_DIR = "logs_acvtool"
 CRASHES_CSV = "crashes_acvtool.csv"
+WAIT_ACTIVITY = 7 # seconds
