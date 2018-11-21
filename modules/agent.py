@@ -29,15 +29,16 @@ def read_status_from_experimenter():
     return key
 
 
-def report_status(app, status):
+def report_status(app, status, api_level):
     csv.write_row(app, status)
     if status == 'c':
         #pass
-        shellhelper.save_log(app)
+        shellhelper.save_log(app, api_level)
 
-def report_error_automatically(app):
-    log_path = shellhelper.save_log(app)
+def report_error_automatically(app, api_level):
+    log_path = shellhelper.save_log(app, api_level)
     text = shellhelper.read_log(log_path)
+    print(text)
     error = check_error(text, app)
     if error:
         csv.write_row(app, "fatal")

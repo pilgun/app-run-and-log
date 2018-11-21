@@ -6,10 +6,14 @@ from modules.decorators import log
 from modules.done_list_handler import list_handler, Status
 
 class Tester:
-    def __init__(self, apk):
+    def __init__(self, apk, api_level=0):
         self.apk = apk
+        self.api_level = api_level
         if not os.path.exists(config.LOGS_DIR):
             os.makedirs(config.LOGS_DIR)
+        if api_level == 0:
+            self.api_level = shellhelper.get_api_level()
+        print(self.api_level)
 
     @log('WRITE SUCCESS')
     def write_success(self):
@@ -20,14 +24,14 @@ class Tester:
         shellhelper.uninstall(self.apk.package)
 
     @log('REPORT')
-    def report_status(self):
-        status = agent.read_status_from_experimenter()
-        agent.report_status(self.apk.package, status)
+    def report_status(self, manual=True):
+        if manual:
+            status = agent.read_status_from_experimenter()
+            agent.report_status(self.apk.package, status, self.api_level)
+        else: 
+            time.sleep(config.WAIT_ACTIVITY)
+            agent.report_error_automatically(self.apk.package, self.api_level)
     
-    @log('REPORT AUTO')
-    def report_status_automatically(self):
-        agent.report_error_automatically(self.apk.package)
-
     @log('RUN ACTIVITY')
     def run(self):
         self.apk.init_manifest()
@@ -40,12 +44,6 @@ class Tester:
     def test(self, manual=True):
         self.install()
         self.run()
-        if manual:
-            self.report_status()
-        else:
-            time.sleep(config.WAIT_ACTIVITY)
-            self.report_status_automatically()
+        self.report_status(manual)
         self.uninstall()
         self.write_success()
-
-

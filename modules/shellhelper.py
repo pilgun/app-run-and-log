@@ -27,7 +27,7 @@ def uninstall(package):
 
 
 def get_package(path):
-    cmd = f'aapt dump badging {path}'
+    cmd = f'{} dump badging {}'.format(config.AAPT_PATH, path)
     try:
         out = request_pipe(cmd)
     except Exception:
@@ -67,13 +67,33 @@ def clean_log():
     cmd = "{0} logcat -c".format(config.ADB_PATH)
     request_pipe(cmd)
 
-def save_log(app):
-    path = os.path.join(config.LOGS_DIR, app + '.txt')
-    cmd = "{0} logcat *:E -d > {1}".format(config.ADB_PATH, path)
+def dump_log(app, path):
+    cmd = "{0} logcat *:E > {1} -d".format(config.ADB_PATH, path)
     request_pipe(cmd)
-    return path
+
+def save_log(app, api_level):
+    file_path = os.path.join(config.LOGS_DIR, "{}.txt".format(app))
+    if api_level < 20:
+        save_log_onto_sdcard(app)
+        pull_log(app, file_path)
+    else:
+        dump_log(app, file_path)
+    return file_path
+
+def save_log_onto_sdcard(app):
+    cmd = "{} shell logcat -f /mnt/sdcard/{}.txt -d *:E".format(config.ADB_PATH, app)
+    request_pipe(cmd)
+
+def pull_log(app, file_path):
+    cmd = "{} pull /mnt/sdcard/{}.txt {}".format(config.ADB_PATH, app, file_path)
+    request_pipe(cmd)
 
 def read_log(path):
     with open(path, 'r') as file:
         data = file.read()
         return data
+
+def get_api_level():
+    cmd = "{} shell getprop ro.build.version.sdk".format(config.ADB_PATH)
+    api_level = int(request_pipe(cmd))
+    return api_level
