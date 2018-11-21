@@ -27,7 +27,7 @@ def uninstall(package):
 
 
 def get_package(path):
-    cmd = f'{} dump badging {}'.format(config.AAPT_PATH, path)
+    cmd = "{} dump badging {}".format(config.AAPT_PATH, path)
     try:
         out = request_pipe(cmd)
     except Exception:
