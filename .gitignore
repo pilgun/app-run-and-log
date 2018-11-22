@@ -110,3 +110,4 @@ logs/
 apktool_logs/
 jacoco_logs/
 acvtool_logs/
+logs_acvtool/

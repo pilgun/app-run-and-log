@@ -13,7 +13,7 @@ class Tester:
             os.makedirs(config.LOGS_DIR)
         if api_level == 0:
             self.api_level = shellhelper.get_api_level()
-        print(self.api_level)
+        print("API LEVEL: {}".format(self.api_level))
 
     @log('WRITE SUCCESS')
     def write_success(self):
