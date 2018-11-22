@@ -6,4 +6,4 @@ AAPT_PATH = r"$ANDROID_SDK\build-tools\27.0.0\aapt.exe"
 IGNORE_DONE_LIST = False
 LOGS_DIR = "logs_acvtool"
 CRASHES_CSV = "crashes_acvtool.csv"
-WAIT_ACTIVITY = 7 # seconds
+WAIT_ACTIVITY = 3 # seconds

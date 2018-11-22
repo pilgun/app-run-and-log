@@ -6,7 +6,7 @@ from modules import shellhelper
 from modules.entities import Csv, csv
 from modules.exceptions import AbsentActivityException, UserExitException
 
-FATAL_LOG_LINE1 = "FATAL EXCEPTION: main"
+FATAL_LOG_LINE1 = "FATAL EXCEPTION:"
 FATAL_LOG_LINE2 = "Process: {}"
 
 def run_main_activity(apk):

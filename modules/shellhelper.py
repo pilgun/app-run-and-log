@@ -68,25 +68,14 @@ def clean_log():
     request_pipe(cmd)
 
 def dump_log(app, path):
-    cmd = "{0} logcat *:E > {1} -d".format(config.ADB_PATH, path)
+    cmd = "{0} logcat -d *:E > {1}".format(config.ADB_PATH, path)
     request_pipe(cmd)
 
 def save_log(app, api_level):
     file_path = os.path.join(config.LOGS_DIR, "{}.txt".format(app))
-    if api_level < 20:
-        save_log_onto_sdcard(app)
-        pull_log(app, file_path)
-    else:
-        dump_log(app, file_path)
+    dump_log(app, file_path)
     return file_path
 
-def save_log_onto_sdcard(app):
-    cmd = "{} shell logcat -f /mnt/sdcard/{}.txt -d *:E".format(config.ADB_PATH, app)
-    request_pipe(cmd)
-
-def pull_log(app, file_path):
-    cmd = "{} pull /mnt/sdcard/{}.txt {}".format(config.ADB_PATH, app, file_path)
-    request_pipe(cmd)
 
 def read_log(path):
     with open(path, 'r') as file:

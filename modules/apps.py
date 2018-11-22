@@ -7,7 +7,7 @@ from modules import config
 from modules.done_list_handler import list_handler
 
 def get_apps_to_process(app_repository_path):
-    all_apps_list = os.listdir(app_repository_path)
+    all_apps_list = sorted(os.listdir(app_repository_path))
     raw_apps_list = [x for x in all_apps_list if is_raw_app(x)]
     apps_to_process = set(raw_apps_list)
     done_project_names = list_handler.get_done_project_names()
