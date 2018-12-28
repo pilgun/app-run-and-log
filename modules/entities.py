@@ -40,55 +40,9 @@ csv = Csv(config.CRASHES_CSV)
 
 
 class Apk:
-    def __init__(self, name):
-        self.path = os.path.join(config.APK_REPOSITORY, name)
+    def __init__(self, name, input_dir):
+        self.path = os.path.join(input_dir, name)
         self.apk = APK(self.path)
         self.name = name
         self.package = self.apk.package
-        self.manifest = None
         self.activity = self.apk.get_main_activity()
-
-    def get_android_manifest_path(self, sources_path):
-        android_manifest_path = os.path.join(sources_path, "app", "src", "main", "AndroidManifest.xml")
-        # android_manifest_path = os.path.join(sources_path, self.name.split('.apk')[0]+'.xml')
-        if not os.path.exists(android_manifest_path):
-            android_manifest_path = os.path.join(sources_path, "src", "main", "AndroidManifest.xml")
-            if not os.path.exists(android_manifest_path):
-                try:
-                    android_manifest_path = self.search_for_manifest(sources_path)
-                except StopIteration:
-                    raise ManifestNotFoundException()
-                if not os.path.exists(android_manifest_path):
-                    raise Exception("Manifest not found")
-        return android_manifest_path
-
-    def search_for_manifest(self, sources_path):
-        generator = glob.iglob(f'{sources_path}/**/AndroidManifest.xml', recursive=True)
-        android_manifest_path = next(generator)
-        return android_manifest_path
-
-apk_info_pattern = re.compile("([^\>]*)package: name='(?P<package>.*?)'\
-([^\>]*)launchable-activity: name='(?P<activity>.*?)'([^\>]*)")
-
-def get_apk_properties(path):
-    info_cmd = "{} dump badging {}".format(config.AAPT_PATH, path)
-    out = subprocess.check_output(info_cmd, shell=True).decode('utf-8')
-    matched = re.match(apk_info_pattern, out)
-
-    package_name = matched.group('package')
-    package_sdkversion = ""
-    package_targetsdkversion = ""
-    package_activity = matched.group('activity')
-
-    return apkinfo(package_name, package_sdkversion, package_targetsdkversion, package_activity)
-
-class apkinfo(object):
-    """Properties of the apk file."""
-    def __init__(self, package=None, sdkversion=None, targetsdkverion=None, activity=None):
-        self.package = package
-        self.sdkversion = sdkversion
-        self.targetsdkversion = targetsdkverion
-        self.activity = activity
-
-    def __repr__(self):
-        return "{} {} {} {}".format(self.package, self.sdkversion, self.targetsdkversion, self.activity)

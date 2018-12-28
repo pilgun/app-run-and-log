@@ -3,7 +3,7 @@
 This is the very basic automated testing pipeline for Android. Its only purpose 
 is to find *healthy* apps and to filter out all the apps that could not be 
 tested (therefore, not healthy) on your particular device or emulator. 
-Not healthy apps affect evaluation of dynamic analysis tools effectiveness.
+Not healthy apps affect the evaluation of dynamic analysis tools effectiveness.
 
 **_Healthy_** app is the app that can be installed onto selected device and does
 not crash upon startup.
@@ -21,7 +21,8 @@ not crash upon startup.
 2. Prepare device/emulator.
 
 ```shell
-$ python main.py
+$ python setup.py install
+$ python main.py INPUT_DIR OUTPUT_DIR
 ```
 
 

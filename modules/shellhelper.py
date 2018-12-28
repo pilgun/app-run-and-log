@@ -26,19 +26,6 @@ def uninstall(package):
         raise ErrorUninstallingException
 
 
-def get_package(path):
-    cmd = "{} dump badging {}".format(config.AAPT_PATH, path)
-    try:
-        out = request_pipe(cmd)
-    except Exception:
-        raise AbsentPackageException()
-    first_line = out.split('\n')[0]
-    name_attribute = first_line.split(' ')[1]
-    package = name_attribute.split('=')[1]
-    package = package.replace("'", '')
-    return package
-
-
 def request_pipe(cmd):
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out, err = pipe.communicate()

@@ -2,6 +2,8 @@ import logging.config
 
 import sys
 import yaml
+import argparse
+import click
 
 from modules import agent
 from modules import apps
@@ -17,14 +19,25 @@ def setup_logging():
         logging.config.dictConfig(yaml.safe_load(f.read()))
 
 
-def main():
+@click.command()
+@click.argument("input_dir", type=click.STRING)
+@click.argument("output_dir", type=click.STRING)
+@click.option("--wait", default=config.WAIT_ACTIVITY, help="Wait for a few seconds befor uninstalling the app.", type=int)
+def main(input_dir, output_dir, wait):
+    """ A simple install/launch automated tester. Reports the apps that 
+    successfully run on a choosen device.
+    """
+    setup_logging()
     logging.info("START EXPERIMENT")
-    apps_to_process, done_project_count, overall_apps = apps.get_apps_to_process(config.APK_REPOSITORY)
+    logging.info("INPUT: {}".format(input_dir))
+    logging.info("OUTPUT: {}".format(output_dir))
+
+    apps_to_process, done_project_count, overall_apps = apps.get_apps_to_process(input_dir)
     counter = done_project_count
     fail_counter = list_handler.get_fail_counter()
     for app_name in apps_to_process:
         logging.info('================================================================================================================================================')
-        apk = Apk(app_name)
+        apk = Apk(app_name, input_dir)
         tester = Tester(apk)
         try:
             counter += 1
@@ -65,5 +78,4 @@ def main():
 
 
 if __name__ == "__main__":
-    setup_logging()
     main()

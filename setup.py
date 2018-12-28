@@ -8,7 +8,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         'PyYAML==3.13',
-        'pyaxmlparser==0.3.13'],
+        'pyaxmlparser==0.3.13',
+        'click==7.0'],
     entry_points={
         'console_scripts': [
             'app-run-and-log=main:main',
