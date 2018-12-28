@@ -34,7 +34,6 @@ class Tester:
     
     @log('RUN ACTIVITY')
     def run(self):
-        self.apk.init_manifest()
         agent.run_main_activity(self.apk)
 
     @log('INSTALL')

@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 
+from pyaxmlparser import APK
 from bbox.AndroidManifest import AndroidManifest
 from modules import config, shellhelper
 from modules.exceptions import ManifestNotFoundException
@@ -41,13 +42,11 @@ csv = Csv(config.CRASHES_CSV)
 class Apk:
     def __init__(self, name):
         self.path = os.path.join(config.APK_REPOSITORY, name)
+        self.apk = APK(self.path)
         self.name = name
-        self.package = shellhelper.get_package(self.path)
+        self.package = self.apk.package
         self.manifest = None
-        self.activity = None
-
-    def init_manifest(self):
-        self.activity = get_apk_properties(self.path).activity
+        self.activity = self.apk.get_main_activity()
 
     def get_android_manifest_path(self, sources_path):
         android_manifest_path = os.path.join(sources_path, "app", "src", "main", "AndroidManifest.xml")
