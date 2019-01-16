@@ -5,20 +5,15 @@ import re
 import subprocess
 
 from pyaxmlparser import APK
-from bbox.AndroidManifest import AndroidManifest
 from modules import config, shellhelper
 from modules.exceptions import ManifestNotFoundException
 
 
 class Csv(object):
-
     def __init__(self, csv_path):
-        if os.path.exists(csv_path):
-            self.csvfile = open(csv_path, 'a', newline='')
-        else:
-            self.csvfile = open(csv_path, 'w', newline='')
-            self.writer.writerow(['Package', 'Status'])
+        self.csvfile = open(csv_path, 'a+', newline='')
         self.writer = csv.writer(self.csvfile)
+        self.writer.writerow(['Package', 'Status'])
 
     def write_row(self, app, status):
         self.writer.writerow([app, status])
