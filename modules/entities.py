@@ -5,9 +5,6 @@ import re
 import subprocess
 
 from pyaxmlparser import APK
-from modules import config, shellhelper
-from modules.exceptions import ManifestNotFoundException
-
 
 class Csv(object):
     def __init__(self, csv_path):
@@ -30,8 +27,6 @@ class Csv(object):
         self.csvfile.seek(0)
         crash_count = self.csvfile.read().count(',c')
         return crash_count
-
-csv = Csv(config.CRASHES_CSV)
 
 
 class Apk:

@@ -1,12 +1,9 @@
 import logging
-
 import os
 
 from modules import config
 
-from modules.done_list_handler import list_handler
-
-def get_apps_to_process(app_repository_path):
+def get_apps_to_process(app_repository_path, list_handler):
     all_apps_list = sorted(os.listdir(app_repository_path))
     raw_apps_list = [x for x in all_apps_list if is_raw_app(x)]
     apps_to_process = set(raw_apps_list)
@@ -27,7 +24,6 @@ def get_apps_to_process(app_repository_path):
 def is_raw_app(path):
     basename = os.path.basename(path)
     return basename.endswith(".apk")
-
 
 
 def get_fail_counter(done_list_file):

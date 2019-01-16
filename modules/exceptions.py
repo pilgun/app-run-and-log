@@ -2,10 +2,6 @@ class AbsentActivityException(Exception):
     pass
 
 
-class ManifestNotFoundException(Exception):
-    pass
-
-
 class UserExitException(Exception):
     pass
 

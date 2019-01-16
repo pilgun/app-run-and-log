@@ -10,8 +10,9 @@ class Status(Enum):
 
 
 class DoneListHandler:
-    def __init__(self):
-        self.done_list = open(config.DONE_LIST, 'a+')
+    def __init__(self, done_list_path):
+        self.done_list_path = done_list_path
+        self.done_list = open(done_list_path, 'a+')
 
     def write(self, app_name, status, reason=None, comment=None):
         if not config.IGNORE_DONE_LIST:
@@ -35,6 +36,3 @@ class DoneListHandler:
 
     def close(self):
         self.done_list.close()
-
-
-list_handler = DoneListHandler()

@@ -57,8 +57,8 @@ def dump_log(app, path):
     cmd = "{0} logcat -d *:E > {1}".format(config.ADB_PATH, path)
     request_pipe(cmd)
 
-def save_log(app, api_level):
-    file_path = os.path.join(config.LOGS_DIR, "{}.txt".format(app))
+def save_log(logs_dir, app, api_level):
+    file_path = os.path.join(logs_dir, "{}.txt".format(app))
     dump_log(app, file_path)
     return file_path
 
