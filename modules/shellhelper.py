@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 import subprocess
 
 from modules import config
@@ -43,7 +43,7 @@ Out: %s\nError: %s" % (out, err))
 
 def start_activity_explicitly(package_name, activity_name):
     # adb shell am start -n com.package.name/com.package.name.ActivityName
-    logging.debug("Starting activity [%s] of the package [%s]..." % (activity_name, package_name))
+    logger.debug("Starting activity [%s] of the package [%s]..." % (activity_name, package_name))
 
     run_string = package_name + '/' + activity_name
     cmd = "{0} shell am start -n {1}".format(config.ADB_PATH, run_string)

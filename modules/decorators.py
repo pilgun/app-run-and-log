@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 
 import subprocess
 
@@ -6,7 +6,7 @@ import subprocess
 def log(msg_before):
     def decorator(func):
         def wrapper(self, *args, **kwargs):
-            logging.info(f'{self.apk.package}: {msg_before}')
+            logger.info(f'{self.apk.package}: {msg_before}')
             func(self, *args, **kwargs)
         return wrapper
     return decorator

@@ -1,9 +1,7 @@
-import logging.config
-
 import os
 import sys
-import yaml
 import argparse
+from loguru import logger
 
 from modules.agent import Agent
 from modules import apps
@@ -16,8 +14,7 @@ from modules import shellhelper
 
 
 def setup_logging():
-    with open('logging.yaml') as f:
-        logging.config.dictConfig(yaml.safe_load(f.read()))
+    logger.add("log.log", format="{time} - {level} - {message}")
 
 
 def add_single_parse_arguments(parser):
@@ -72,7 +69,7 @@ def get_parser():
 def main():
     setup_logging()
     parser = get_parser()
-    args = parser.parse_args(["run", "~/apks/weather.apk"])
+    args = parser.parse_args(["run", "/Users/ap/apks/weather.apk"])
     run_actions(parser, args)
 
 
@@ -82,6 +79,7 @@ def run_actions(parser, args):
     if args.subcmd == "run":
         directory, filename = os.path.split(args.apk_path)
         apk = Apk(filename, directory)
+        logger.info("START - {}".format(apk.package))
         shellhelper.install(apk.path)
         if args.monkey:
             Agent.run_monkey_tester(apk.package, config.MONKEY_SEED, config.MONKEY_THROTTLE, args.monkey)
@@ -98,9 +96,9 @@ def start_testing(input_dir, output_dir, wait):
     """ A simple install/launch automated tester. Reports the apps that 
     successfully run on a chooen device.
     """
-    logging.info("START EXPERIMENT")
-    logging.info("INPUT: {}".format(input_dir))
-    logging.info("OUTPUT: {}".format(output_dir))
+    logger.info("START EXPERIMENT")
+    logger.info("INPUT: {}".format(input_dir))
+    logger.info("OUTPUT: {}".format(output_dir))
 
     agent = Agent(output_dir)
     list_handler = agent.get_done_list_handler()
@@ -110,11 +108,11 @@ def start_testing(input_dir, output_dir, wait):
     fail_counter = list_handler.get_fail_counter()
 
     for app_name in apps_to_process:
-        logging.info(
+        logger.info(
             '================================================================================================================================================'
         )
         counter += 1
-        logging.info(
+        logger.info(
             f'{app_name}: {counter} OF {overall_apps}, FAIL TO RUN: {fail_counter}'
         )
         apk = Apk(app_name, input_dir)
@@ -133,29 +131,29 @@ def run_single_app(apk, list_handler, agent, fail_counter=0, overall_apps=1):
         tester.test(manual=False)
     except ErrorInstallingException:
         fail_counter += 1
-        logging.exception(f'Cannot install app {apk.name}')
+        logger.exception(f'Cannot install app {apk.name}')
         list_handler.write(apk.name, Status.FAIL, reason='INSTALLATION ERROR')
     except NotEnoughSpaceException:
-        logging.exception(
+        logger.exception(
             f'Cannot install app {apk.name} because there is not enough space. \
                 Stopping tool. Please, wipe data, then run tool again')
         sys.exit()
     except AbsentActivityException:
         fail_counter += 1
-        logging.exception(f'Absent main activity for app {apk.name}')
+        logger.exception(f'Absent main activity for app {apk.name}')
         tester.uninstall()
         list_handler.write(apk.name, Status.FAIL, reason='ABSENT ACTIVITY')
     except UserExitException:
-        logging.info(f'User has chosen to exit while testing {apk.name}')
+        logger.info(f'User has chosen to exit while testing {apk.name}')
         list_handler.write(apk.name, Status.UNDEFINED, reason='USER_EXIT')
         tester.uninstall()
         sys.exit()
     except ErrorUninstallingException:
-        logging.exception(f'Cannot uninstall {apk.name}')
+        logger.exception(f'Cannot uninstall {apk.name}')
         list_handler.write(apk.name, Status.SUCCESS, comment='UNINSTALL ERROR')
     except BaseException:
         fail_counter += 1
-        logging.exception(f'Exception for app {apk.name}')
+        logger.exception(f'Exception for app {apk.name}')
         tester.uninstall()
         list_handler.write(apk.name, Status.FAIL, reason='UNKNOWN')
     return fail_counter

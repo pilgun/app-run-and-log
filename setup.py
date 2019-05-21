@@ -5,7 +5,7 @@ setup(
     version='0.1',
     packages=find_packages(include=["modules"]),
     install_requires=[
-        'PyYAML==3.13',
+        'loguru==0.2.5',
         'pyaxmlparser==0.3.13'],
     entry_points={
         'console_scripts': [
