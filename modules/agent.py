@@ -31,6 +31,10 @@ class Agent(object):
         shellhelper.start_activity_explicitly(apk.package, main_activity_name)
 
     @staticmethod
+    def run_monkey_tester(package, seed, throttle, event_num):
+        shellhelper.run_monkey(package, seed, throttle, event_num)
+
+    @staticmethod
     def read_status_from_experimenter():
         print("Press: c - crashed, s - successed, e - exit")
         key = Agent.wait_key()

@@ -7,7 +7,7 @@ import os
 
 
 def install(new_apk_path):
-    cmd = '"%s" install -r "%s"' % (config.ADB_PATH, new_apk_path)
+    cmd = '"{}" install -r "{}"'.format(config.ADB_PATH, new_apk_path)
     try:
         out = request_pipe(cmd)
     except Exception as e:
@@ -19,7 +19,7 @@ def install(new_apk_path):
 
 
 def uninstall(package):
-    cmd = '"%s" uninstall "%s"' % (config.ADB_PATH, package)
+    cmd = '"{}" uninstall "{}"'.format(config.ADB_PATH, package)
     try:
         request_pipe(cmd)
     except Exception:
@@ -72,3 +72,8 @@ def get_api_level():
     cmd = "{} shell getprop ro.build.version.sdk".format(config.ADB_PATH)
     api_level = int(request_pipe(cmd))
     return api_level
+
+
+def run_monkey(package, seed, throttle, event_num):
+    cmd = 'adb shell monkey -p {} -s {} --throttle {} {}'
+    request_pipe(cmd.format(package, seed, throttle, event_num))
