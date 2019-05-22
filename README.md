@@ -11,7 +11,7 @@ not crash upon startup.
 # Testing flow
 
 - install
-- run the main activity
+- run the main activity or monkey
 - uninstall
 - report if the app failed to install or crashed upon startup time
 - proceed with the next app
@@ -21,10 +21,20 @@ not crash upon startup.
 2. Prepare device/emulator.
 
 ```shell
-$ python setup.py install
-$ python main.py INPUT_DIR OUTPUT_DIR
+$ pip install -e .
+$ app_run_and_log run <apk_path> # run a single app
 ```
 
+# Examples
+
+1.  Launch all apps from a directory.
+```shell
+$ app_run_and_log run_dir <input_dir> -o <output_dir> 
+```
+2. Run monkey on every app with 1000 events (see config.py for defaults).
+```shell
+$ app_run_and_log run_dir <input_dir> -o <output_dir> --monkey -e 1000
+```
 
 ## License
 
