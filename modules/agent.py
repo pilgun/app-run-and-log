@@ -16,6 +16,17 @@ FATAL_LOG_LINE2 = "Process: {}"
 
 class Agent(object):
     def __init__(self, output_dir):
+        if not os.path.exists(output_dir):
+            message = "Create \'{}\' in current directory? [y/n]: " if output_dir == config.OUTPUT_DIR else "Create \'{}\' directory? [y/n]: "
+            user_choice = input(message.format(output_dir))
+            if user_choice.lower() in ["y", "yes"]:
+                os.makedirs(output_dir)
+            elif user_choice.lower() in ["n", "no"]:
+                print("Aborting operation!")
+                raise UserExitException()
+            else:
+                print("Your choice is not correct! Exiting!")
+                raise UserExitException()
         self.output_dir = output_dir
         self.logs_dir = os.path.join(output_dir, config.LOGS_DIR)
         self.done_list_path = os.path.join(output_dir, config.DONE_LIST)
@@ -24,9 +35,8 @@ class Agent(object):
 
     def get_done_list_handler(self):
         return self.done_list_handler
-        
-    @staticmethod
-    def run():
+
+    def run(self, apk):
         pass
 
     @staticmethod
@@ -92,20 +102,23 @@ class Agent(object):
     @staticmethod
     def wait_for_boot():
         cmd = "adb shell getprop dev.bootcomplete"
-        res = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].decode('utf-8').strip()
+        res = subprocess.Popen(
+            cmd, shell=True,
+            stdout=subprocess.PIPE).communicate()[0].decode('utf-8').strip()
         while res != '1':
             logger.info("wait for devices")
             time.sleep(5)
-            comm = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()
+            comm = subprocess.Popen(cmd, shell=True,
+                                    stdout=subprocess.PIPE).communicate()
             if len(comm) > 0 and comm[0] != None:
                 res = comm[0].strip()
 
 
 class ActivityAgent(Agent):
     def __init__(self, output_dir):
-        super.__init__(output_dir)
+        super().__init__(output_dir)
 
-    def run(apk):
+    def run(self, apk):
         main_activity_name = apk.activity
         if main_activity_name is None:
             raise AbsentActivityException
@@ -115,12 +128,11 @@ class ActivityAgent(Agent):
 
 class MonkeyAgent(Agent):
     def __init__(self, output_dir, seed, throttle, event_num):
-        super.__init__(output_dir)
-        self.package = apk.package
+        super().__init__(output_dir)
         self.seed = seed
         self.throttle = throttle
         self.event_num = event_num
-        
-    def run(apk):
-        shellhelper.run_monkey(apk.package, self.seed, self.throttle, self.event_num)
 
+    def run(self, apk):
+        shellhelper.run_monkey(apk.package, self.seed, self.throttle,
+                               self.event_num)

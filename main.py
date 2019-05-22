@@ -3,9 +3,10 @@ import sys
 import argparse
 from loguru import logger
 
-from modules.agent import Agent, ActivityAgent, MonkeyAgent
 from modules import apps
 from modules import config
+from modules import arg_parser
+from modules.agent import Agent, ActivityAgent, MonkeyAgent
 from modules.done_list_handler import Status
 from modules.entities import Apk
 from modules.exceptions import AbsentActivityException, UserExitException, ErrorInstallingException, ErrorUninstallingException, NotEnoughSpaceException
@@ -17,79 +18,25 @@ def setup_logging():
     logger.add("log.log", format="{time} - {level} - {message}")
 
 
-def add_single_parse_arguments(parser):
-    parser.add_argument("apk_path",
-                        metavar="<apk_path>",
-                        help="path to apk package")
-    add_monkey_parser(parser)
-
-
-def add_monkey_parser(parser):
-    parser.add_argument("-m",
-                        "--monkey",
-                        action="store_true",
-                        help="generates N monkey's events")
-    parser.add_argument("-e", "--events", default=config.MONKEY_EVENTS)
-
-
-def add_bundle_parse_arguments(parser):
-    parser.add_argument("-i",
-                        "--input_dir",
-                        metavar="<input_dir>",
-                        help="a directory of applications to install and run")
-    parser.add_argument("-o",
-                        "--output_dir",
-                        metavar="<output_dir>",
-                        help="a directory for test results",
-                        required=True)
-    parser.add_argument(
-        "-w",
-        "--wait",
-        metavar="<wait>",
-        help="wait for activity or crash for N seconds (3 sec by default).",
-        required=False,
-        default=config.WAIT_ACTIVITY)
-    add_monkey_parser(parser)
-
-
-def get_parser():
-    parser = argparse.ArgumentParser(description="A simple install/launch \
-        automated tester. Reports the apps that successfully run on a chosen device."
-                                     )
-    subparsers = parser.add_subparsers(dest='subcmd',
-                                       metavar="<command>",
-                                       help="- help -")
-    parser_single = subparsers.add_parser("run", help="runs a single app")
-    add_single_parse_arguments(parser_single)
-    parser_dir = subparsers.add_parser(
-        "run_dir", help="sequentially runs all apps from a directory")
-    add_bundle_parse_arguments(parser_dir)
-    return parser
-
-
 def main():
     setup_logging()
-    parser = get_parser()
-    args = parser.parse_args(["run", "/Users/ap/apks/weather.apk"])
+    parser = arg_parser.get_parser()
+    args = parser.parse_args()
     run_actions(parser, args)
 
 
 def run_actions(parser, args):
     if args is None:
         args = parser.parse_args()
-
+    agent = MonkeyAgent(
+        args.output_dir, config.MONKEY_SEED, config.MONKEY_THROTTLE,
+        args.events) if args.monkey else ActivityAgent(args.output_dir)
     if args.subcmd == "run":
-        logger.info("START - {}".format(apk.package))
         directory, filename = os.path.split(args.apk_path)
         apk = Apk(filename, directory)
-        agent = {}
-        if args.monkey:
-            agent = MonkeyAgent(args.output_dir, apk, config.MONKEY_SEED, config.MONKEY_THROTTLE, args.events)
-        else:
-            agent = ActivityAgent(args.output_dir, apk)
-        shellhelper.install(apk.path)
-        agent.run(apk)
-        shellhelper.uninstall(apk.package)
+        logger.info("START - {}".format(apk.package))
+        tester = Tester(apk, agent)
+        tester.test(manual=False)
     elif args.subcmd == "run_dir":
         start_testing(args.input_dir, agent, args.wait)
 

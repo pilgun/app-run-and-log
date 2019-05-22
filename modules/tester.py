@@ -38,7 +38,7 @@ class Tester:
     
     @log('RUN ACTIVITY')
     def run(self):
-        Agent.run_main_activity(self.apk)
+        self.agent.run(self.apk)
 
     @log('INSTALL')
     def install(self):
