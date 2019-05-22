@@ -18,7 +18,9 @@ def setup_logging():
 
 
 def add_single_parse_arguments(parser):
-    parser.add_argument("apk_path", metavar="<apk_path>", help="Path to apk.")
+    parser.add_argument("apk_path",
+                        metavar="<apk_path>",
+                        help="path to apk package")
     add_monkey_parser(parser)
 
 
@@ -26,27 +28,25 @@ def add_monkey_parser(parser):
     parser.add_argument("-m",
                         "--monkey",
                         action="store_true",
-                        help="Generates N monkey's events.")
-    parser.add_argument("-e",
-                        "--events",
-                        default=config.MONKEY_EVENTS)
+                        help="generates N monkey's events")
+    parser.add_argument("-e", "--events", default=config.MONKEY_EVENTS)
 
 
 def add_bundle_parse_arguments(parser):
     parser.add_argument("-i",
                         "--input_dir",
                         metavar="<input_dir>",
-                        help="Set of applications to install and run.")
+                        help="a directory of applications to install and run")
     parser.add_argument("-o",
                         "--output_dir",
                         metavar="<output_dir>",
-                        help="A directory for test results.",
+                        help="a directory for test results",
                         required=True)
     parser.add_argument(
         "-w",
         "--wait",
         metavar="<wait>",
-        help="Wait for activity or crash for N seconds (3 sec by default).",
+        help="wait for activity or crash for N seconds (3 sec by default).",
         required=False,
         default=config.WAIT_ACTIVITY)
     add_monkey_parser(parser)
@@ -54,13 +54,15 @@ def add_bundle_parse_arguments(parser):
 
 def get_parser():
     parser = argparse.ArgumentParser(description="A simple install/launch \
-        automated tester. Reports the apps that successfully run on a chosen device.")
+        automated tester. Reports the apps that successfully run on a chosen device."
+                                     )
     subparsers = parser.add_subparsers(dest='subcmd',
                                        metavar="<command>",
-                                       help="-help-")
-    parser_single = subparsers.add_parser("run", help="Runs a single app.")
+                                       help="- help -")
+    parser_single = subparsers.add_parser("run", help="runs a single app")
     add_single_parse_arguments(parser_single)
-    parser_dir = subparsers.add_parser("run_dir", help="Sequentially runs all apps from the dir.")
+    parser_dir = subparsers.add_parser(
+        "run_dir", help="sequentially runs all apps from a directory")
     add_bundle_parse_arguments(parser_dir)
     return parser
 
@@ -81,7 +83,8 @@ def run_actions(parser, args):
         logger.info("START - {}".format(apk.package))
         shellhelper.install(apk.path)
         if args.monkey:
-            Agent.run_monkey_tester(apk.package, config.MONKEY_SEED, config.MONKEY_THROTTLE, args.events)
+            Agent.run_monkey_tester(apk.package, config.MONKEY_SEED,
+                                    config.MONKEY_THROTTLE, args.events)
         else:
             Agent.run_main_activity(apk)
         shellhelper.uninstall(apk.package)
