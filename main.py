@@ -25,9 +25,10 @@ def add_single_parse_arguments(parser):
 def add_monkey_parser(parser):
     parser.add_argument("-m",
                         "--monkey",
-                        metavar="<monkey>",
-                        help="Generates N monkey's events.",
-                        required=False,
+                        action="store_true",
+                        help="Generates N monkey's events.")
+    parser.add_argument("-e",
+                        "--events",
                         default=config.MONKEY_EVENTS)
 
 
@@ -52,24 +53,22 @@ def add_bundle_parse_arguments(parser):
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(
-        description="A simple install/launch automated tester. Reports the \
-            apps that successfully run on a chosen device.")
+    parser = argparse.ArgumentParser(description="A simple install/launch \
+        automated tester. Reports the apps that successfully run on a chosen device.")
     subparsers = parser.add_subparsers(dest='subcmd',
                                        metavar="<command>",
                                        help="-help-")
     parser_single = subparsers.add_parser("run", help="Runs a single app.")
     add_single_parse_arguments(parser_single)
-    parser_bundle = subparsers.add_parser("bundle", help="Runs a dir of apps.")
-    add_bundle_parse_arguments(parser_bundle)
-
+    parser_dir = subparsers.add_parser("run_dir", help="Sequentially runs all apps from the dir.")
+    add_bundle_parse_arguments(parser_dir)
     return parser
 
 
 def main():
     setup_logging()
     parser = get_parser()
-    args = parser.parse_args(["run", "/Users/ap/apks/weather.apk"])
+    args = parser.parse_args()
     run_actions(parser, args)
 
 
@@ -82,7 +81,7 @@ def run_actions(parser, args):
         logger.info("START - {}".format(apk.package))
         shellhelper.install(apk.path)
         if args.monkey:
-            Agent.run_monkey_tester(apk.package, config.MONKEY_SEED, config.MONKEY_THROTTLE, args.monkey)
+            Agent.run_monkey_tester(apk.package, config.MONKEY_SEED, config.MONKEY_THROTTLE, args.events)
         else:
             Agent.run_main_activity(apk)
         shellhelper.uninstall(apk.package)

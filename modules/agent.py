@@ -1,7 +1,9 @@
-from loguru import logger
 import os
 import sys
 import re
+import time
+import subprocess
+from loguru import logger
 from modules import config
 from modules import shellhelper
 from modules.entities import Csv
@@ -61,7 +63,6 @@ class Agent(object):
         self.csv_report.write_row(app, "ok")
         return False
 
-
     @staticmethod
     def check_error(text, app):
         '''Checks is there is Fatal exception message in the log file.'''
@@ -94,3 +95,15 @@ class Agent(object):
             finally:
                 termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
         return result.decode('utf-8')
+
+    @staticmethod
+    def wait_for_boot():
+        cmd = "adb shell getprop dev.bootcomplete"
+        res = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].decode('utf-8').strip()
+        while res != '1':
+            logger.info("wait for devices")
+            time.sleep(5)
+            comm = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()
+            if len(comm) > 0 and comm[0] != None:
+                res = comm[0].strip()
+
