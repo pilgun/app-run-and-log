@@ -3,7 +3,7 @@ import sys
 import argparse
 from loguru import logger
 
-from modules.agent import Agent
+from modules.agent import Agent, ActivityAgent, MonkeyAgent
 from modules import apps
 from modules import config
 from modules.done_list_handler import Status
@@ -70,39 +70,41 @@ def get_parser():
 def main():
     setup_logging()
     parser = get_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(["run", "/Users/ap/apks/weather.apk"])
     run_actions(parser, args)
 
 
 def run_actions(parser, args):
     if args is None:
         args = parser.parse_args()
+
     if args.subcmd == "run":
+        logger.info("START - {}".format(apk.package))
         directory, filename = os.path.split(args.apk_path)
         apk = Apk(filename, directory)
-        logger.info("START - {}".format(apk.package))
-        shellhelper.install(apk.path)
+        agent = {}
         if args.monkey:
-            Agent.run_monkey_tester(apk.package, config.MONKEY_SEED,
-                                    config.MONKEY_THROTTLE, args.events)
+            agent = MonkeyAgent(args.output_dir, apk, config.MONKEY_SEED, config.MONKEY_THROTTLE, args.events)
         else:
-            Agent.run_main_activity(apk)
+            agent = ActivityAgent(args.output_dir, apk)
+        shellhelper.install(apk.path)
+        agent.run(apk)
         shellhelper.uninstall(apk.package)
     elif args.subcmd == "run_dir":
-        start_testing(args.input_dir, args.output_dir, args.wait)
+        start_testing(args.input_dir, agent, args.wait)
+
     else:
         parser.print_usage()
 
 
-def start_testing(input_dir, output_dir, wait):
+def start_testing(input_dir, agent, wait):
     """ A simple install/launch automated tester. Reports the apps that 
     successfully run on a chooen device.
     """
     logger.info("START EXPERIMENT")
     logger.info("INPUT: {}".format(input_dir))
-    logger.info("OUTPUT: {}".format(output_dir))
+    logger.info("OUTPUT: {}".format(agent.output_dir))
 
-    agent = Agent(output_dir)
     list_handler = agent.get_done_list_handler()
     apps_to_process, done_project_count, overall_apps = apps.get_apps_to_process(
         input_dir, list_handler)

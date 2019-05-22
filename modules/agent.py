@@ -13,6 +13,7 @@ from modules.exceptions import AbsentActivityException, UserExitException
 FATAL_LOG_LINE1 = "FATAL EXCEPTION:"
 FATAL_LOG_LINE2 = "Process: {}"
 
+
 class Agent(object):
     def __init__(self, output_dir):
         self.output_dir = output_dir
@@ -25,16 +26,8 @@ class Agent(object):
         return self.done_list_handler
         
     @staticmethod
-    def run_main_activity(apk):
-        main_activity_name = apk.activity
-        if main_activity_name is None:
-            raise AbsentActivityException
-        shellhelper.clean_log()
-        shellhelper.start_activity_explicitly(apk.package, main_activity_name)
-
-    @staticmethod
-    def run_monkey_tester(package, seed, throttle, event_num):
-        shellhelper.run_monkey(package, seed, throttle, event_num)
+    def run():
+        pass
 
     @staticmethod
     def read_status_from_experimenter():
@@ -106,4 +99,28 @@ class Agent(object):
             comm = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()
             if len(comm) > 0 and comm[0] != None:
                 res = comm[0].strip()
+
+
+class ActivityAgent(Agent):
+    def __init__(self, output_dir):
+        super.__init__(output_dir)
+
+    def run(apk):
+        main_activity_name = apk.activity
+        if main_activity_name is None:
+            raise AbsentActivityException
+        shellhelper.clean_log()
+        shellhelper.start_activity_explicitly(apk.package, main_activity_name)
+
+
+class MonkeyAgent(Agent):
+    def __init__(self, output_dir, seed, throttle, event_num):
+        super.__init__(output_dir)
+        self.package = apk.package
+        self.seed = seed
+        self.throttle = throttle
+        self.event_num = event_num
+        
+    def run(apk):
+        shellhelper.run_monkey(apk.package, self.seed, self.throttle, self.event_num)
 
