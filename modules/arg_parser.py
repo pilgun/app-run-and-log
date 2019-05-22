@@ -1,6 +1,7 @@
 import argparse
 from modules import config
 
+
 def add_single_parse_arguments(parser):
     parser.add_argument("apk_path",
                         metavar="<apk_path>",
@@ -18,8 +19,11 @@ def add_monkey_parser(parser):
     parser.add_argument("-m",
                         "--monkey",
                         action="store_true",
-                        help="generates N monkey's events")
-    parser.add_argument("-e", "--events", default=config.MONKEY_EVENTS)
+                        help="runs monkey")
+    parser.add_argument("-e",
+                        "--events",
+                        help="generates N monkey events",
+                        default=config.MONKEY_EVENTS)
 
 
 def add_bundle_parse_arguments(parser):
