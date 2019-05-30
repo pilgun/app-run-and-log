@@ -1,6 +1,5 @@
-# Create config.py based on this file filling in values that make sense for your machine
 DONE_LIST = r'done_list.txt'
-ADB_PATH = r"$ANDROID_SDK/platform-tools/adb"
+ADB_PATH = r"adb"
 IGNORE_DONE_LIST = False
 LOGS_DIR = "logcat"
 CRASHES_CSV = "crashes.csv"
