@@ -28,9 +28,10 @@ def main():
 def run_actions(parser, args):
     if args is None:
         args = parser.parse_args()
-    agent = MonkeyAgent(
-        args.output_dir, config.MONKEY_SEED, config.MONKEY_THROTTLE,
-        args.events) if args.monkey else ActivityAgent(args.output_dir)
+    if args.subcmd:
+        agent = MonkeyAgent(
+            args.output_dir, config.MONKEY_SEED, config.MONKEY_THROTTLE,
+            args.events) if args.monkey else ActivityAgent(args.output_dir)
     if args.subcmd == "run":
         directory, filename = os.path.split(args.apk_path)
         apk = Apk(filename, directory)
