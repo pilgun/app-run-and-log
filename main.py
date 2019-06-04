@@ -5,7 +5,8 @@ from loguru import logger
 from modules import apps
 from modules import config
 from modules import arg_parser
-from modules.agent import Agent, ActivityAgent, MonkeyAgent, Reporter, BundleReporter
+from modules.reporter import Reporter, BundleReporter
+from modules.agent import Agent, ActivityAgent, MonkeyAgent
 from modules.done_list_handler import Status
 from modules.entities import Apk
 from modules.exceptions import AbsentActivityException, UserExitException, ErrorInstallingException, ErrorUninstallingException, NotEnoughSpaceException

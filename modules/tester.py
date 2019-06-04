@@ -2,7 +2,6 @@ import os
 import time
 from modules import config
 from modules import shellhelper
-from modules.agent import Agent
 from modules.decorators import log
 from modules.done_list_handler import Status
 
