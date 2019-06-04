@@ -6,7 +6,7 @@ from loguru import logger
 from modules import apps
 from modules import config
 from modules import arg_parser
-from modules.agent import Agent, ActivityAgent, MonkeyAgent
+from modules.agent import Agent, ActivityAgent, MonkeyAgent, Reporter, BundleReporter
 from modules.done_list_handler import Status
 from modules.entities import Apk
 from modules.exceptions import AbsentActivityException, UserExitException, ErrorInstallingException, ErrorUninstallingException, NotEnoughSpaceException
@@ -25,27 +25,34 @@ def main():
     run_actions(parser, args)
 
 
+def get_agent(args):
+    if args.monkey:
+        return MonkeyAgent(config.MONKEY_SEED, config.MONKEY_THROTTLE,
+                           args.events)
+    else:
+        return ActivityAgent()
+
+
 def run_actions(parser, args):
     if args is None:
         args = parser.parse_args()
-    if args.subcmd:
-        agent = MonkeyAgent(
-            args.output_dir, config.MONKEY_SEED, config.MONKEY_THROTTLE,
-            args.events) if args.monkey else ActivityAgent(args.output_dir)
     if args.subcmd == "run":
+        reporter = Reporter(args.output_dir)
+        agent = get_agent(args)
         directory, filename = os.path.split(args.apk_path)
         apk = Apk(filename, directory)
         logger.info("START - {}".format(apk.package))
-        tester = Tester(apk, agent)
+        tester = Tester(apk, agent, reporter)
         tester.test(manual=False)
     elif args.subcmd == "run_dir":
-        start_testing(args.input_dir, agent, args.wait)
-
+        reporter = BundleReporter(args.output_dir)
+        agent = get_agent(args)
+        start_testing(args.input_dir, agent, args.wait, reporter)
     else:
         parser.print_usage()
 
 
-def start_testing(input_dir, agent, wait):
+def start_testing(input_dir, agent, wait, reporter):
     """ A simple install/launch automated tester. Reports the apps that 
     successfully run on a chooen device.
     """
@@ -71,14 +78,20 @@ def start_testing(input_dir, agent, wait):
         fail_counter = run_single_app(apk,
                                       list_handler,
                                       agent,
+                                      reporter,
                                       fail_counter=fail_counter,
                                       overall_apps=overall_apps)
     agent.close_crash_report()
     list_handler.close()
 
 
-def run_single_app(apk, list_handler, agent, fail_counter=0, overall_apps=1):
-    tester = Tester(apk, agent)
+def run_single_app(apk,
+                   list_handler,
+                   agent,
+                   reporter,
+                   fail_counter=0,
+                   overall_apps=1):
+    tester = Tester(apk, agent, reporter)
     try:
         tester.test(manual=False)
     except ErrorInstallingException:

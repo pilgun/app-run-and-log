@@ -8,10 +8,11 @@ from modules.done_list_handler import DoneListHandler, Status
 
 
 class Tester:
-    def __init__(self, apk, agent, api_level=0):
+    def __init__(self, apk, agent, reporter, api_level=0):
         self.apk = apk
         self.api_level = api_level
         self.agent = agent
+        self.reporter = reporter
         if not os.path.exists(self.agent.logs_dir):
             os.makedirs(self.agent.logs_dir)
         self.list_handler = self.agent.get_done_list_handler()
@@ -31,10 +32,10 @@ class Tester:
     def report_status(self, manual=True):
         if manual:
             status = self.agent.read_status_from_experimenter()
-            self.agent.report_status(self.apk.package, status)
+            self.reporter.report_status(self.apk.package, status)
         else:
             time.sleep(config.WAIT_ACTIVITY)
-            self.agent.report_error_automatically(self.apk.package)
+            self.reporter.save_log(self.apk.package)
     
     @log('RUN ACTIVITY')
     def run(self):
