@@ -50,14 +50,14 @@ class Agent(object):
             raise UserExitException()
         return key
 
-    def report_status(self, app, status, api_level):
+    def report_status(self, app, status):
         self.csv_report.write_row(app, status)
         if status == 'c':
             #pass
-            shellhelper.save_log(self.logs_dir, app, api_level)
+            shellhelper.save_log(self.logs_dir, app)
 
-    def report_error_automatically(self, app, api_level):
-        log_path = shellhelper.save_log(self.logs_dir, app, api_level)
+    def report_error_automatically(self, app):
+        log_path = shellhelper.save_log(self.logs_dir, app)
         text = shellhelper.read_log(log_path)
         error = self.check_error(text, app)
         if error:

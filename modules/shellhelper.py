@@ -53,13 +53,13 @@ def clean_log():
     cmd = "{0} logcat -c".format(config.ADB_PATH)
     request_pipe(cmd)
 
-def dump_log(app, path):
+def dump_log(path):
     cmd = "{0} logcat -d *:E > {1}".format(config.ADB_PATH, path)
     request_pipe(cmd)
 
-def save_log(logs_dir, app, api_level):
+def save_log(logs_dir, app):
     file_path = os.path.join(logs_dir, "{}.txt".format(app))
-    dump_log(app, file_path)
+    dump_log(file_path)
     return file_path
 
 

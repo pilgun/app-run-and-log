@@ -31,10 +31,10 @@ class Tester:
     def report_status(self, manual=True):
         if manual:
             status = self.agent.read_status_from_experimenter()
-            self.agent.report_status(self.apk.package, status, self.api_level)
-        else: 
+            self.agent.report_status(self.apk.package, status)
+        else:
             time.sleep(config.WAIT_ACTIVITY)
-            self.agent.report_error_automatically(self.apk.package, self.api_level)
+            self.agent.report_error_automatically(self.apk.package)
     
     @log('RUN ACTIVITY')
     def run(self):
