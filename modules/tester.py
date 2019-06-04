@@ -4,7 +4,7 @@ from modules import config
 from modules import shellhelper
 from modules.agent import Agent
 from modules.decorators import log
-from modules.done_list_handler import DoneListHandler, Status
+from modules.done_list_handler import Status
 
 
 class Tester:
@@ -13,16 +13,13 @@ class Tester:
         self.api_level = api_level
         self.agent = agent
         self.reporter = reporter
-        if not os.path.exists(self.agent.logs_dir):
-            os.makedirs(self.agent.logs_dir)
-        self.list_handler = self.agent.get_done_list_handler()
         if api_level == 0:
             self.api_level = shellhelper.get_api_level()
         print("API LEVEL: {}".format(self.api_level))
 
     @log('WRITE SUCCESS')
     def write_success(self):
-        self.list_handler.write(self.apk.name, Status.SUCCESS)
+        self.reporter.done_status(self.apk.name, Status.SUCCESS)
 
     @log('UNINSTALL')
     def uninstall(self):

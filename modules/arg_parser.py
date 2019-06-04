@@ -27,15 +27,15 @@ def add_monkey_parser(parser):
 
 
 def add_bundle_parse_arguments(parser):
-    parser.add_argument("-i",
-                        "--input_dir",
+    parser.add_argument("input_dir",
                         metavar="<input_dir>",
                         help="a directory of applications to install and run")
     parser.add_argument("-o",
                         "--output_dir",
                         metavar="<output_dir>",
                         help="a directory for test results",
-                        required=True)
+                        required=False,
+                        default=config.OUTPUT_DIR)
     parser.add_argument(
         "-w",
         "--wait",

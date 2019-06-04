@@ -32,13 +32,16 @@ class Reporter(object):
                 print("Your choice is not correct! Exiting!")
                 raise UserExitException()
 
+    def done_status(self, name, status):
+        pass
+
     def report_status(self, app, status):
         pass
 
     def save_log(self, app):
         shellhelper.save_log(self.output_dir, app)
 
-    def process_log(self, path, app):
+    def report_error(self, path, app):
         pass
 
 
@@ -52,12 +55,18 @@ class BundleReporter(Reporter):
         self.done_list_handler = DoneListHandler(self.done_list_path)
         self.csv_report = Csv(os.path.join(output_dir, config.CRASHES_CSV))
 
+    def done_status(self, name, status):
+        self.done_list_handler.write(name, status)
+
+    def close_crash_report(self):
+        self.csv_report.close()
+
     def report_status(self, app, status):
         self.csv_report.write_row(app, status)
         if status == 'c':
             #pass
             shellhelper.save_log(self.output_dir, app)
-    
+
     def save_log(self, app):
         return shellhelper.save_log(self.logs_dir, app)
 
@@ -82,15 +91,11 @@ class BundleReporter(Reporter):
         log_path = self.save_log(app)
         self.report_error(log_path, app)
         return log_path
-        
 
 
 class Agent(object):
-    def __init__(self, reporter):
-        self.reporter = reporter
-
-    def get_done_list_handler(self):
-        return self.reporter.done_list_handler
+    def __init__(self):
+        pass
 
     def run(self, apk):
         pass
@@ -105,9 +110,6 @@ class Agent(object):
         if key == 'e':
             raise UserExitException()
         return key
-
-    def close_crash_report(self):
-        self.csv_report.close()
 
     @staticmethod
     def wait_key():

@@ -2,7 +2,6 @@ import os
 import sys
 import argparse
 from loguru import logger
-
 from modules import apps
 from modules import config
 from modules import arg_parser
@@ -58,9 +57,9 @@ def start_testing(input_dir, agent, wait, reporter):
     """
     logger.info("START EXPERIMENT")
     logger.info("INPUT: {}".format(input_dir))
-    logger.info("OUTPUT: {}".format(agent.output_dir))
+    logger.info("OUTPUT: {}".format(reporter.output_dir))
 
-    list_handler = agent.get_done_list_handler()
+    list_handler = reporter.done_list_handler
     apps_to_process, done_project_count, overall_apps = apps.get_apps_to_process(
         input_dir, list_handler)
     counter = done_project_count
@@ -81,7 +80,7 @@ def start_testing(input_dir, agent, wait, reporter):
                                       reporter,
                                       fail_counter=fail_counter,
                                       overall_apps=overall_apps)
-    agent.close_crash_report()
+    reporter.close_crash_report()
     list_handler.close()
 
 
