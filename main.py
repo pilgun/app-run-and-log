@@ -66,15 +66,15 @@ def start_testing(input_dir, agent, wait, reporter):
     counter = done_project_count
     fail_counter = list_handler.get_fail_counter()
 
-    for app_name in apps_to_process:
+    for app_path in apps_to_process:
         logger.info(
             '================================================================================================================================================'
         )
         counter += 1
         logger.info(
-            f'{app_name}: {counter} OF {overall_apps}, FAIL TO RUN: {fail_counter}'
+            f'{app_path}: {counter} OF {overall_apps}, FAIL TO RUN: {fail_counter}'
         )
-        apk = Apk(app_name, input_dir)
+        apk = Apk(app_path)
         fail_counter = run_single_app(apk,
                                       list_handler,
                                       agent,

@@ -30,9 +30,9 @@ class Csv(object):
 
 
 class Apk:
-    def __init__(self, name, input_dir):
-        self.path = os.path.join(input_dir, name)
+    def __init__(self, path):
+        self.path = path 
         self.apk = APK(self.path)
-        self.name = name
+        self.name = os.path.basename(path)
         self.package = self.apk.package
         self.activity = self.apk.get_main_activity()
