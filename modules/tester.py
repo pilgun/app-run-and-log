@@ -31,7 +31,8 @@ class Tester:
             self.reporter.report_status(self.apk.package, status)
         else:
             time.sleep(config.WAIT_ACTIVITY)
-            self.reporter.save_log(self.apk.package)
+            self.reporter.report_error_automatically(self.apk.package)
+            #self.reporter.save_log(self.apk.package)
     
     @log('RUN ACTIVITY')
     def run(self):
