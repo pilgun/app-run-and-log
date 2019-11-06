@@ -33,6 +33,7 @@ class Apk:
     def __init__(self, path):
         self.path = path 
         self.apk = APK(self.path)
-        self.name = os.path.basename(path)
+        # temporarty hack for ella os.path.basename(path) => path[51:-21]
+        self.name = path[51:-21]
         self.package = self.apk.package
         self.activity = self.apk.get_main_activity()

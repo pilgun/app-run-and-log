@@ -47,22 +47,28 @@ def run_actions(parser, args):
     elif args.subcmd == "run_dir":
         reporter = BundleReporter(args.output_dir)
         agent = get_agent(args)
-        start_testing(args.input_dir, agent, args.wait, reporter)
+        logger.info("INPUT: {}".format(args.input_dir))
+        all_apps_list = apps.get_all_file_paths(args.input_dir)
+        start_testing(all_apps_list, agent, args.wait, reporter)
+    elif args.subcmd == "run_list":
+        reporter = BundleReporter(args.output_dir)
+        agent = get_agent(args)
+        app_list = apps.read_apps_list(args.input_list)
+        start_testing(app_list, agent, args.wait, reporter)
     else:
         parser.print_usage()
 
 
-def start_testing(input_dir, agent, wait, reporter):
+def start_testing(all_apps_paths, agent, wait, reporter):
     """ A simple install/launch automated tester. Reports the apps that 
     successfully run on a chooen device.
     """
     logger.info("START EXPERIMENT")
-    logger.info("INPUT: {}".format(input_dir))
     logger.info("OUTPUT: {}".format(reporter.output_dir))
-
+    
     list_handler = reporter.done_list_handler
     apps_to_process, done_project_count, overall_apps = apps.get_apps_to_process(
-        input_dir, list_handler)
+        all_apps_paths, list_handler)
     counter = done_project_count
     fail_counter = list_handler.get_fail_counter()
 
