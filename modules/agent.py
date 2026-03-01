@@ -8,6 +8,7 @@ from modules.exceptions import AbsentActivityException, UserExitException
 
 
 class Agent(object):
+    '''Abstract agent for running app and reporting status'''
     def __init__(self):
         pass
 
@@ -16,10 +17,10 @@ class Agent(object):
 
     @staticmethod
     def read_status_from_experimenter():
-        print("Press: c - crashed, s - successed, e - exit")
+        print("Press: c - crashed, s - successed, g - google play, e - exit")
         key = Agent.wait_key()
-        while key != 's' and key != 'c' and key != 'e':
-            print("Press: c - crashed, s - successed, e - exit")
+        while key != 's' and key != 'c' and key != 'g' and key != 'e':
+            print("Press: c - crashed, s - successed, g - Google Play redirect, e - exit")
             key = Agent.wait_key()
         if key == 'e':
             raise UserExitException()
@@ -45,7 +46,9 @@ class Agent(object):
                 pass
             finally:
                 termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
-        return result.decode('utf-8')
+        if isinstance(result, bytes):
+            return result.decode('utf-8')
+        return result
 
     @staticmethod
     def wait_for_boot():
@@ -82,5 +85,6 @@ class MonkeyAgent(Agent):
         self.event_num = event_num
 
     def run(self, apk):
+        shellhelper.clean_log()
         shellhelper.run_monkey(apk.package, self.seed, self.throttle,
                                self.event_num)

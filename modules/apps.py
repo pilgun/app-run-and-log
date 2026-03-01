@@ -6,7 +6,7 @@ from modules import config
 
 def get_apps_to_process(all_apps_paths, list_handler):
     all_apps_paths = sorted(all_apps_paths)
-    raw_apps_list = [x for x in all_apps_paths if is_raw_app(x)]
+    # raw_apps_list = [x for x in all_apps_paths if is_raw_app(x)]
 
     apps_to_process = []
     done_project_names = list_handler.get_done_project_names()
@@ -15,12 +15,12 @@ def get_apps_to_process(all_apps_paths, list_handler):
     logger.debug(f'DONE LIST CONTENT: {done_project_names}')
     if not config.IGNORE_DONE_LIST:
         # temporarty hack for ella os.path.basename(f)[:-4] => f[51:-21]
-        apps_to_process = [f for f in raw_apps_list if f[51:-21] not in done_project_names]
+        apps_to_process = [f for f in all_apps_paths if f not in done_project_names]
     else:
         logger.info("IGNORING DONE LIST")
     logger.debug(f'Apps to process: {apps_to_process}')
     done_project_count = len(done_project_names)
-    overall_project_count = len(raw_apps_list)
+    overall_project_count = len(all_apps_paths)
     return apps_to_process, done_project_count, overall_project_count
 
 

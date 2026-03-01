@@ -29,11 +29,17 @@ class Csv(object):
         return crash_count
 
 
-class Apk:
+class BaseApk:
+    def __init__(self, package):
+        self.package = package
+        self.name = package
+
+
+class Apk(BaseApk):
     def __init__(self, path):
         self.path = path 
         self.apk = APK(self.path)
         # temporarty hack for ella os.path.basename(path) => path[51:-21]
-        self.name = path[51:-21]
+        # self.name = path[51:-21]
         self.package = self.apk.package
         self.activity = self.apk.get_main_activity()

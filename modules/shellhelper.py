@@ -75,5 +75,5 @@ def get_api_level():
 
 
 def run_monkey(package, seed, throttle, event_num):
-    cmd = 'adb shell monkey -p {} -s {} --throttle {} {}'
-    request_pipe(cmd.format(package, seed, throttle, event_num))
+    cmd = '"{}" shell monkey -p {} -s {} --throttle {} {}'
+    request_pipe(cmd.format(config.ADB_PATH, package, seed, throttle, event_num))

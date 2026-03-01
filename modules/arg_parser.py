@@ -63,6 +63,26 @@ def add_list_parse_arguments(parser):
                         default=config.WAIT_ACTIVITY)
     add_monkey_parser(parser)
 
+def add_launch_parse_arguments(parser):
+    parser.add_argument("packages_list",
+                        metavar="<packages_list>",
+                        help="list of APK paths or package names to launch")
+    parser.add_argument("-o",
+                        "--output_dir",
+                        metavar="<output_dir>",
+                        help="a directory of test results",
+                        required=False,
+                        default=config.OUTPUT_DIR)
+    parser.add_argument(
+        "-w",
+        "--wait",
+        metavar="<wait>",
+        help="wait N seconds between launches (0 by default).",
+        required=False,
+        default=0,
+    )
+    add_monkey_parser(parser)
+
 
 def get_parser():
     parser = argparse.ArgumentParser(description="A simple install/launch \
@@ -77,4 +97,6 @@ def get_parser():
     add_bundle_parse_arguments(run_dir)
     run_list = subparsers.add_parser("run_list", help="runs apps in from a list")
     add_list_parse_arguments(run_list)
+    launch = subparsers.add_parser("launch", help="launches an app without testing")
+    add_launch_parse_arguments(launch)
     return parser

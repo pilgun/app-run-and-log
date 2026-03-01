@@ -4,10 +4,10 @@ from modules import config
 from modules import shellhelper
 from modules.decorators import log
 from modules.done_list_handler import Status
-
+from modules.agent import Agent
 
 class Tester:
-    def __init__(self, apk, agent, reporter, api_level=0):
+    def __init__(self, apk, agent: Agent, reporter, api_level=0):
         self.apk = apk
         self.api_level = api_level
         self.agent = agent
@@ -42,9 +42,11 @@ class Tester:
     def install(self):
         shellhelper.install(self.apk.path)
 
-    def test(self, manual=True):
-        self.install()
+    def test(self, manual=True, just_launch=False):
+        if not just_launch:
+            self.install()
         self.run()
         self.report_status(manual)
-        self.uninstall()
+        if not just_launch:
+            self.uninstall()
         self.write_success()

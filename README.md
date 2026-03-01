@@ -1,8 +1,6 @@
 # app-run-and-log
 
-This is the very basic automated testing pipeline for Android. Its only purpose 
-is to find *healthy* apps and to filter out all the apps that could not be 
-tested (therefore, not healthy) on your particular device or emulator. 
+This is a very basic automated running pipeline for Android apps. It only finds *healthy* apps to do filtering of those that could not be teste (therefore, not healthy). Run on a device or an emulator.
 Not healthy apps affect the evaluation of dynamic analysis tools effectiveness.
 
 **_Healthy_** app is the app that can be installed onto selected device and does
@@ -25,20 +23,29 @@ $ pip install -e .
 $ app_run_and_log run <apk_path> # run a single app
 ```
 
+```app_run_and_log or app-run-and-log```
+
+
 # Examples
 
-1.  Launch all apps from a directory.
+1.  Launch all apps from a directory. (not maintained)
 ```shell
-$ app_run_and_log run_dir <input_dir> -o <output_dir> 
+$ app-run-and-log run_dir <input_dir> -o <output_dir>
 ```
-2. Run monkey on every app with 1000 events (see config.py for defaults).
+2. Run monkey on every app with 1000 events (see config.py for defaults). (not maintained)
 ```shell
 $ app_run_and_log run_dir <input_dir> -o <output_dir> --monkey -e 1000
+$ app-run-and-log run_dir <input_dir> -o <output_dir> --monkey -e 1000
+$ app_run_and_log launch -m -e 1 ./packages-list.txt -o out/ # launch already installed apps using monkey by feeding their package names from a list
+```
+3. Launch already installed apps using monkey by feeding their package names from a list
+```
+$ app_run_and_log launch -m -e 1 -o ./out/ ./packages-list.txt
 ```
 
 ## License
 
-Copyright © 2018 SnT, University of Luxembourg
+Copyright © from 2018 SnT, University of Luxembourg, Dr. Aleksandr Pilgun
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use the files under this repository except in compliance with 

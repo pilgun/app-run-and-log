@@ -44,12 +44,13 @@ class Reporter(object):
 class BundleReporter(Reporter):
     def __init__(self, output_dir):
         super().__init__(output_dir)
-        self.logs_dir = os.path.join(output_dir, config.LOGS_DIR)
-        if not os.path.exists(self.logs_dir):
-            os.makedirs(self.logs_dir)
         self.done_list_path = os.path.join(output_dir, config.DONE_LIST)
         self.done_list_handler = DoneListHandler(self.done_list_path)
         self.csv_report = Csv(os.path.join(output_dir, config.CRASHES_CSV))
+        self.logs_dir = os.path.join(output_dir, config.LOGS_DIR)
+        if not os.path.exists(self.logs_dir):
+            os.makedirs(self.logs_dir)
+        
 
     def done_status(self, name, status):
         self.done_list_handler.write(name, status)
@@ -59,9 +60,9 @@ class BundleReporter(Reporter):
 
     def report_status(self, app, status):
         self.csv_report.write_row(app, status)
-        if status == 'c':
+        # if status == 'c':
             #pass
-            shellhelper.save_log(self.output_dir, app)
+        shellhelper.save_log(self.output_dir, app)
 
     def save_log(self, app):
         return shellhelper.save_log(self.logs_dir, app)

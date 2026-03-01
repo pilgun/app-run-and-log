@@ -1,6 +1,5 @@
 import os
 import sys
-import argparse
 from loguru import logger
 from modules import apps
 from modules import config
@@ -8,7 +7,7 @@ from modules import arg_parser
 from modules.reporter import Reporter, BundleReporter
 from modules.agent import Agent, ActivityAgent, MonkeyAgent
 from modules.done_list_handler import Status
-from modules.entities import Apk
+from modules.entities import Apk, BaseApk
 from modules.exceptions import AbsentActivityException, UserExitException, ErrorInstallingException, ErrorUninstallingException, NotEnoughSpaceException
 from modules.tester import Tester
 from modules import shellhelper
@@ -55,13 +54,18 @@ def run_actions(parser, args):
         agent = get_agent(args)
         app_list = apps.read_apps_list(args.input_list)
         start_testing(app_list, agent, args.wait, reporter)
+    elif args.subcmd == "launch":
+        reporter = BundleReporter(args.output_dir)
+        agent = get_agent(args)
+        packages_list = apps.read_apps_list(args.packages_list)
+        start_testing(packages_list, agent, args.wait, reporter, just_launch=True, manual=True)
     else:
         parser.print_usage()
 
 
-def start_testing(all_apps_paths, agent, wait, reporter):
-    """ A simple install/launch automated tester. Reports the apps that 
-    successfully run on a chooen device.
+def start_testing(all_apps_paths, agent, wait, reporter, just_launch=False, manual=False):
+    """ A simple install/launch automated runner. Reports apps that 
+    successfully run on a choosen device.
     """
     logger.info("START EXPERIMENT")
     logger.info("OUTPUT: {}".format(reporter.output_dir))
@@ -80,13 +84,15 @@ def start_testing(all_apps_paths, agent, wait, reporter):
         logger.info(
             f'{app_path}: {counter} OF {overall_apps}, FAIL TO RUN: {fail_counter}'
         )
-        apk = Apk(app_path)
+        apk = BaseApk(app_path)
         fail_counter = run_single_app(apk,
                                       list_handler,
                                       agent,
                                       reporter,
                                       fail_counter=fail_counter,
-                                      overall_apps=overall_apps)
+                                      overall_apps=overall_apps,
+                                      just_launch=just_launch,
+                                      manual=manual)
     reporter.close_crash_report()
     list_handler.close()
 
@@ -96,10 +102,12 @@ def run_single_app(apk,
                    agent,
                    reporter,
                    fail_counter=0,
-                   overall_apps=1):
+                   overall_apps=1,
+                   just_launch=False,
+                   manual=False):
     tester = Tester(apk, agent, reporter)
     try:
-        tester.test(manual=False)
+        tester.test(manual=manual, just_launch=just_launch)
     except ErrorInstallingException:
         fail_counter += 1
         logger.exception(f'Cannot install app {apk.name}')
@@ -112,12 +120,14 @@ def run_single_app(apk,
     except AbsentActivityException:
         fail_counter += 1
         logger.exception(f'Absent main activity for app {apk.name}')
-        tester.uninstall()
+        if not just_launch:
+            tester.uninstall()
         list_handler.write(apk.name, Status.FAIL, reason='ABSENT ACTIVITY')
     except UserExitException:
         logger.info(f'User has chosen to exit while testing {apk.name}')
         list_handler.write(apk.name, Status.UNDEFINED, reason='USER_EXIT')
-        tester.uninstall()
+        if not just_launch: 
+            tester.uninstall()
         sys.exit()
     except ErrorUninstallingException:
         logger.exception(f'Cannot uninstall {apk.name}')
@@ -125,8 +135,15 @@ def run_single_app(apk,
     except BaseException:
         fail_counter += 1
         logger.exception(f'Exception for app {apk.name}')
-        tester.uninstall()
+        if not just_launch:
+            tester.uninstall()
         list_handler.write(apk.name, Status.FAIL, reason='UNKNOWN')
+    except Exception as e:
+        fail_counter += 1
+        logger.exception(f'Exception for app {apk.name}')
+        if not just_launch:
+            tester.uninstall()
+        list_handler.write(apk.name, Status.FAIL, reason=str(e))
     return fail_counter
 
 
